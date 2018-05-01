@@ -1,5 +1,8 @@
 const fs = require('fs');
+const colors = require('colors/safe');
+var Table = require('cli-table');
 
+//HELPERS
 var getLogEntries = () => {
   try {
     //save as ..
@@ -9,25 +12,67 @@ var getLogEntries = () => {
     return [];
   }
 };
-
 var saveLogEntries = entries => {
   fs.writeFileSync('doglog-datalog.json', JSON.stringify(entries));
 };
+const table = new Table({
+  chars: {
+    top: '═',
+    'top-mid': '╤',
+    'top-left': '╔',
+    'top-right': '╗',
+    bottom: '═',
+    'bottom-mid': '╧',
+    'bottom-left': '╚',
+    'bottom-right': '╝',
+    left: '║',
+    'left-mid': '╟',
+    mid: '─',
+    'mid-mid': '┼',
+    right: '║',
+    'right-mid': '╢',
+    middle: '│'
+  },
+  style: { 'padding-left': 0, 'padding-right': 0 },
+  colWidths: [5, 90]
+});
+//show as initial caps:
+String.prototype.initCap = function() {
+  const replacement = this.charAt(0).toUpperCase();
+  return replacement + this.substr(0 + replacement.length);
+};
+const printInfo = hound => {
+  if (!hound) {
+    console.log('Hound not found.');
+  } else {
+    table.push(
+      { Name: colors.rainbow(hound.name.initCap()) },
+      { Color: hound.color },
+      { Sex: hound.sex },
+      { Desc: hound.description }
+    );
+    console.log(table.toString());
+  }
+};
+
+//HOUND LOGIC
 //get all of the entries:
 const getPack = () => {
   return getLogEntries();
 };
+
 //delete a hound
 const deleteHound = name => {
-  var pack = getLogEntries();
-  var stayHounds = pack.filter(hound => pack.name !== name);
+  const pack = getLogEntries();
+  var stayHounds = pack.filter(hound => hound.name !== name);
   saveLogEntries(stayHounds);
   return pack.length !== stayHounds.length;
 };
 //get one hound:
 const getHound = name => {
   var pack = getLogEntries();
-  var targetHound = pack.filter(hound => pack.name === name);
+  var targetHound = pack.filter(hound => hound.name === name);
+  console.log(targetHound);
   return targetHound[0];
 };
 
@@ -41,24 +86,13 @@ const addHound = (name, color, sex, description) => {
     description
   };
   var doopHound = pack.filter(hound => hound.name === name);
-
   if (doopHound.length === 0) {
     pack.push(hound);
     saveLogEntries(pack);
     return hound;
   }
 };
-const printInfo = hound => {
-  if (!hound) {
-    console.log('Hound not found.');
-  } else {
-    console.log('~~~~~~~~~~');
-    console.log(`Name: ${hound.name}`);
-    console.log(`body: ${hound.color}`);
-    console.log(`Name: ${hound.sex}`);
-    console.log(`body: ${hound.description}`);
-  }
-};
+
 module.exports = {
   addHound,
   getPack,

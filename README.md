@@ -7,4 +7,6 @@ Using just the command line, I can enter a dog's name, color, sex, and basic per
 ## Toolbox:
 
 * NodeJS
-* Yargs
+* Inquirer
+* Colors
+* Cli-Table
